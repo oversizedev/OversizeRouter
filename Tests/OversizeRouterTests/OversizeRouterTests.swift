@@ -1,5 +1,5 @@
-import XCTest
 @testable import OversizeRouter
+import XCTest
 
 final class OversizeRouterTests: XCTestCase {
     func testExample() throws {
