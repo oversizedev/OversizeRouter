@@ -5,20 +5,20 @@
 
 import SwiftUI
 
-@available(iOS 16.0, *)
-public final class Router<Destination: Routable>: ObservableObject {
+@Observable
+public final class Router<Destination: Routable> {
     // Path
-    @Published public var path = NavigationPath()
-    @Published public var sheetPath = NavigationPath()
-    @Published public var fullScreenCoverPath = NavigationPath()
+    public var path = NavigationPath()
+    public var sheetPath = NavigationPath()
+    public var fullScreenCoverPath = NavigationPath()
 
     // Sheets
-    @Published public var sheet: Destination?
-    @Published public var fullScreenCover: Destination?
-    @Published public var menu: Destination?
-    @Published public var sheetDetents: Set<PresentationDetent> = []
-    @Published public var dragIndicator: Visibility = .hidden
-    @Published public var dismissDisabled: Bool = false
+    public var sheet: Destination?
+    public var fullScreenCover: Destination?
+    public var menu: Destination?
+    public var sheetDetents: Set<PresentationDetent> = []
+    public var dragIndicator: Visibility = .hidden
+    public var dismissDisabled: Bool = false
 
     public init() {}
 }

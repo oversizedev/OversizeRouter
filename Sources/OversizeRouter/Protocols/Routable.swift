@@ -5,6 +5,11 @@
 
 import SwiftUI
 
+public protocol RoutableView: Routable {
+    associatedtype ViewType: View
+    func view() -> ViewType
+}
+
 public protocol Routable: Equatable, Hashable, Identifiable {}
 
 public extension Routable {
