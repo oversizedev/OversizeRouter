@@ -57,7 +57,7 @@ public struct RoutingSplitView<TopSidebar, BottomSidebar, Tab>: View where Tab: 
                 }
             }
             .listStyle(.sidebar)
-        #elseif os(watchOS)
+        #elseif os(watchOS) || os(tvOS)
         List {
             ForEach(router.tabs) { menu in
                 NavigationLink(value: menu) {
