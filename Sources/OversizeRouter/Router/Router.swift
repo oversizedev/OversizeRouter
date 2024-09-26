@@ -19,18 +19,20 @@ public final class Router<Destination: Routable> {
     public var sheetDetents: Set<PresentationDetent> = []
     public var dragIndicator: Visibility = .hidden
     public var dismissDisabled: Bool = false
+    #if os(macOS)
+        public var sheetHeight: CGFloat = 500
+        public var sheetWidth: CGFloat?
+    #endif
 
     public init() {}
 }
 
-@available(iOS 16.0, *)
 public extension Router {
     func changeMenu(_ screen: Destination) {
         menu = screen
     }
 }
 
-@available(iOS 16.0, *)
 public extension Router {
     func move(_ screen: Destination) {
         path.append(screen)
@@ -50,27 +52,37 @@ public extension Router {
 
 // MARK: - Sheets
 
-@available(iOS 16.0, *)
 public extension Router {
-    func present(_ sheet: Destination, fullScreen: Bool = false) {
-        if fullScreen {
-            if fullScreenCover != nil {
-                fullScreenCover = nil
-            }
-            fullScreenCover = sheet
-        } else {
+    #if os(macOS)
+        func present(_ sheet: Destination, sheetHeight: CGFloat = 500, sheetWidth: CGFloat? = nil) {
             restSheet()
+            self.sheetHeight = sheetHeight
+            self.sheetWidth = sheetWidth
             self.sheet = sheet
         }
-    }
 
-    func present(_ sheet: Destination, detents: Set<PresentationDetent> = [.large], indicator: Visibility = .hidden, dismissDisabled: Bool = false) {
-        restSheet()
-        sheetDetents = detents
-        dragIndicator = indicator
-        self.dismissDisabled = dismissDisabled
-        self.sheet = sheet
-    }
+    #else
+
+        func present(_ sheet: Destination, fullScreen: Bool = false) {
+            if fullScreen {
+                if fullScreenCover != nil {
+                    fullScreenCover = nil
+                }
+                fullScreenCover = sheet
+            } else {
+                restSheet()
+                self.sheet = sheet
+            }
+        }
+
+        func present(_ sheet: Destination, detents: Set<PresentationDetent> = [.large], indicator: Visibility = .hidden, dismissDisabled: Bool = false) {
+            restSheet()
+            sheetDetents = detents
+            dragIndicator = indicator
+            self.dismissDisabled = dismissDisabled
+            self.sheet = sheet
+        }
+    #endif
 
     func backOrDismiss() {
         if sheet != nil || fullScreenCover != nil {
@@ -114,5 +126,9 @@ public extension Router {
         if sheetDetents.isEmpty == false {
             sheetDetents = []
         }
+        #if os(macOS)
+            sheetHeight = 500
+            sheetWidth = nil
+        #endif
     }
 }

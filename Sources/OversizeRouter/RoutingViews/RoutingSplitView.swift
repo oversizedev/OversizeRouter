@@ -6,17 +6,33 @@
 import OversizeServices
 import SwiftUI
 
-public struct RoutingSplitView<Tab>: View where Tab: TabableView {
+public struct RoutingSplitView<TopSidebar, BottomSidebar, Tab>: View where Tab: TabableView, TopSidebar: View, BottomSidebar: View {
     @State private var router: TabRouter<Tab>
     @State private var hudRouter: HUDRouter = .init()
     @State var navigationSplitViewVisibility: NavigationSplitViewVisibility = .all
 
-    public init(router: TabRouter<Tab>) {
+    private let topSidebar: TopSidebar?
+    private let bottomSidebar: BottomSidebar?
+
+    public init(
+        router: TabRouter<Tab>,
+        @ViewBuilder topSidebar: () -> TopSidebar,
+        @ViewBuilder bottomSidebar: () -> BottomSidebar
+    ) {
         self.router = router
+        self.topSidebar = topSidebar()
+        self.bottomSidebar = bottomSidebar()
     }
 
-    public init(selection: Tab, tabs: [Tab]) {
+    public init(
+        selection: Tab,
+        tabs: [Tab],
+        @ViewBuilder topSidebar: () -> TopSidebar,
+        @ViewBuilder bottomSidebar: () -> BottomSidebar
+    ) {
         router = .init(selection: selection, tabs: tabs)
+        self.topSidebar = topSidebar()
+        self.bottomSidebar = bottomSidebar()
     }
 
     public var body: some View {
@@ -43,13 +59,55 @@ public struct RoutingSplitView<Tab>: View where Tab: TabableView {
             .listStyle(.sidebar)
         #else
             List(selection: $router.selection) {
+                topSidebar
+
                 ForEach(router.tabs) { menu in
                     NavigationLink(value: menu) {
-                        Label(title: { Text(menu.title) }, icon: { menu.icon })
+                        Label(
+                            title: { Text(menu.title) },
+                            icon: { menu.icon }
+                        )
                     }
                 }
+
+                bottomSidebar
             }
             .listStyle(.sidebar)
         #endif
+    }
+}
+
+public extension RoutingSplitView where TopSidebar == EmptyView, BottomSidebar == EmptyView {
+    init(
+        selection: Tab,
+        tabs: [Tab]
+    ) {
+        router = .init(selection: selection, tabs: tabs)
+        topSidebar = nil
+        bottomSidebar = nil
+    }
+}
+
+public extension RoutingSplitView where TopSidebar == EmptyView {
+    init(
+        selection: Tab,
+        tabs: [Tab],
+        @ViewBuilder bottomSidebar: () -> BottomSidebar
+    ) {
+        router = .init(selection: selection, tabs: tabs)
+        topSidebar = nil
+        self.bottomSidebar = bottomSidebar()
+    }
+}
+
+public extension RoutingSplitView where BottomSidebar == EmptyView {
+    init(
+        selection: Tab,
+        tabs: [Tab],
+        @ViewBuilder topSidebar: () -> TopSidebar
+    ) {
+        router = .init(selection: selection, tabs: tabs)
+        self.topSidebar = topSidebar()
+        bottomSidebar = nil
     }
 }

@@ -24,22 +24,32 @@ public struct RoutingView<Content, Destination>: View where Content: View, Desti
                     destination.view()
                 }
         }
-        .sheet(item: $router.sheet, content: { sheet in
-            NavigationStack(path: $router.sheetPath) {
-                sheet
-                    .view()
-                    .navigationDestination(for: Destination.self) { destination in
-                        destination.view()
-                    }
+        .sheet(
+            item: $router.sheet,
+            content: { sheet in
+                NavigationStack(path: $router.sheetPath) {
+                    sheet
+                        .view()
+                        .navigationDestination(for: Destination.self) { destination in
+                            destination.view()
+                        }
+                }
+
+                .presentationDetents(router.sheetDetents)
+                .presentationDragIndicator(router.dragIndicator)
+                .interactiveDismissDisabled(router.dismissDisabled)
+                .systemServices()
+                .environment(router)
+                .environment(alertRouter)
+                .environment(hudRouter)
+                #if os(macOS)
+                    .frame(
+                        width: router.sheetWidth,
+                        height: router.sheetHeight
+                    )
+                #endif
             }
-            .presentationDetents(router.sheetDetents)
-            .presentationDragIndicator(router.dragIndicator)
-            .interactiveDismissDisabled(router.dismissDisabled)
-            .systemServices()
-            .environment(router)
-            .environment(alertRouter)
-            .environment(hudRouter)
-        })
+        )
         .systemServices()
         .environment(router)
         .environment(alertRouter)
