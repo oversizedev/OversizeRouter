@@ -19,8 +19,7 @@ jobs:
           - platform=tvOS Simulator,name=Apple TV 4K (3rd generation) (at 1080p),OS=18.0
           - platform=macOS,arch=arm64
     with:
-      package:
-        - OversizeRouter
+      package: OversizeRouter
       destination: ${{ matrix.destination }}
     secrets: inherit
 
