@@ -58,13 +58,13 @@ public struct RoutingSplitView<TopSidebar, BottomSidebar, Tab>: View where Tab: 
             }
             .listStyle(.sidebar)
         #elseif os(watchOS) || os(tvOS)
-        List {
-            ForEach(router.tabs) { menu in
-                NavigationLink(value: menu) {
-                    Text(menu.title)
+            List {
+                ForEach(router.tabs) { menu in
+                    NavigationLink(value: menu) {
+                        Text(menu.title)
+                    }
                 }
             }
-        }
         #else
             List(selection: $router.selection) {
                 topSidebar

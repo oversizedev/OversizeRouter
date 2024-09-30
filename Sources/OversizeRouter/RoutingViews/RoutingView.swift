@@ -34,10 +34,10 @@ public struct RoutingView<Content, Destination>: View where Content: View, Desti
                             destination.view()
                         }
                 }
-
                 .presentationDetents(router.sheetDetents)
                 .presentationDragIndicator(router.dragIndicator)
                 .interactiveDismissDisabled(router.dismissDisabled)
+                .alert(item: $alertRouter.alert) { $0.alert }
                 .systemServices()
                 .environment(router)
                 .environment(alertRouter)
@@ -50,24 +50,27 @@ public struct RoutingView<Content, Destination>: View where Content: View, Desti
                 #endif
             }
         )
+
+        #if os(iOS)
+        .fullScreenCover(item: $router.fullScreenCover) { fullScreenCover in
+            NavigationStack(path: $router.sheetPath) {
+                fullScreenCover
+                    .view()
+                    .navigationDestination(for: Destination.self) { destination in
+                        destination.view()
+                    }
+            }
+            .alert(item: $alertRouter.alert) { $0.alert }
+            .systemServices()
+            .environment(router)
+            .environment(alertRouter)
+            .environment(hudRouter)
+        }
+        #endif
+        .alert(item: $alertRouter.alert) { $0.alert }
         .systemServices()
         .environment(router)
         .environment(alertRouter)
         .environment(hudRouter)
-        #if os(iOS)
-            .fullScreenCover(item: $router.fullScreenCover) { fullScreenCover in
-                NavigationStack(path: $router.sheetPath) {
-                    fullScreenCover
-                        .view()
-                        .navigationDestination(for: Destination.self) { destination in
-                            destination.view()
-                        }
-                }
-                .systemServices()
-                .environment(router)
-                .environment(alertRouter)
-                .environment(hudRouter)
-            }
-        #endif
     }
 }
