@@ -8,8 +8,9 @@ import OversizeModels
 import SwiftUI
 
 public enum AppAlert: Alertable {
-    case dismiss(_ action: () -> Void)
-    case delete(_ action: () -> Void)
+    case dismiss(_ action: @Sendable () -> Void)
+    case delete(_ action: @Sendable () -> Void)
+    case unsavedChanges(_ action: @Sendable () -> Void)
     case appError(error: AppError)
     case text(_ title: String)
 }
@@ -21,6 +22,8 @@ public extension AppAlert {
             "dismiss"
         case .delete:
             "delete"
+        case .unsavedChanges:
+            "unsavedChanges"
         case .appError:
             "appError"
         case .text:
@@ -44,10 +47,17 @@ public extension AppAlert {
                 primaryButton: .destructive(Text("\(L10n.Button.delete)"), action: action),
                 secondaryButton: .cancel()
             )
+        case let .unsavedChanges(action):
+            Alert(
+                title: Text("You have unsaved changes"),
+                message: Text("Do you want to discard them and switch versions?"),
+                primaryButton: .destructive(Text("Discard Changes"), action: action),
+                secondaryButton: .cancel()
+            )
         case let .appError(error: error):
             Alert(
                 title: Text(error.title),
-                message: Text(error.subtitle.valueOrEmpty),
+                message: error.subtitle == nil ? nil : Text(error.subtitle ?? ""),
                 dismissButton: .cancel()
             )
         case let .text(title):

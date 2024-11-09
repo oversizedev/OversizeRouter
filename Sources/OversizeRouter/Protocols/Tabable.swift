@@ -5,14 +5,14 @@
 
 import SwiftUI
 
+public protocol Tabable: CaseIterable, Equatable, Identifiable, Hashable, Sendable {
+    var icon: Image { get }
+    var title: String { get }
+}
+
 public protocol TabableView: Tabable {
     associatedtype ViewType: View
     func view() -> ViewType
-}
-
-public protocol Tabable: CaseIterable, Equatable, Identifiable, Hashable {
-    var icon: Image { get }
-    var title: String { get }
 }
 
 public extension Tabable {

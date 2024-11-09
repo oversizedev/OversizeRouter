@@ -5,12 +5,12 @@
 
 import SwiftUI
 
+public protocol Routable: Equatable, Hashable, Identifiable, Sendable {}
+
 public protocol RoutableView: Routable {
     associatedtype ViewType: View
     func view() -> ViewType
 }
-
-public protocol Routable: Equatable, Hashable, Identifiable {}
 
 public extension Routable {
     func hash(into hasher: inout Hasher) {
