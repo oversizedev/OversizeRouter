@@ -3,7 +3,6 @@
 // TabRoutingView.swift, created on 06.08.2024
 //
 
-import OversizeServices
 import OversizeUI
 import SwiftUI
 

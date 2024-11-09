@@ -3,7 +3,6 @@
 // RoutingSplitView.swift, created on 06.08.2024
 //
 
-import OversizeServices
 import SwiftUI
 
 public struct RoutingSplitView<TopSidebar, BottomSidebar, Tab>: View where Tab: TabableView, TopSidebar: View, BottomSidebar: View {
@@ -37,14 +36,20 @@ public struct RoutingSplitView<TopSidebar, BottomSidebar, Tab>: View where Tab: 
 
     public var body: some View {
         NavigationSplitView(columnVisibility: $navigationSplitViewVisibility) {
-            sidebar
-                .navigationSplitViewColumnWidth(200)
+            sidebar.navigationSplitViewColumnWidth(
+                min: 200,
+                ideal: 280,
+                max: 350
+            )
+            .environment(hudRouter)
+            .environment(router)
         } detail: {
-            router.selection.view()
-                .environment(router)
+            router.selection
+                .view()
                 .environment(hudRouter)
+                .environment(router)
         }
-        .hud(hudRouter.hudText, isPresented: $hudRouter.isShowHud)
+        .hud(hudRouter.hudText, autoHide: hudRouter.isAutoHide, isPresented: $hudRouter.isShowHud)
     }
 
     private var sidebar: some View {
@@ -81,6 +86,20 @@ public struct RoutingSplitView<TopSidebar, BottomSidebar, Tab>: View where Tab: 
                 bottomSidebar
             }
             .listStyle(.sidebar)
+            .toolbar {
+                ToolbarItemGroup {
+                    Spacer()
+
+                    Button(
+                        action: {},
+                        label: {
+                            Image(
+                                systemName: "plus.circle.fill"
+                            )
+                        }
+                    )
+                }
+            }
         #endif
     }
 }

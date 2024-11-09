@@ -60,9 +60,7 @@ public extension Router {
             self.sheetWidth = sheetWidth
             self.sheet = sheet
         }
-
     #else
-
         func present(_ sheet: Destination, fullScreen: Bool = false) {
             if fullScreen {
                 if fullScreenCover != nil {

@@ -3,7 +3,6 @@
 // RoutingSidebarView.swift, created on 17.08.2024
 //
 
-import OversizeServices
 import OversizeUI
 import SwiftUI
 
@@ -30,7 +29,6 @@ public struct RoutingSidebarView<Tab>: View where Tab: TabableView {
                     .hud(hudRouter.hudText, isPresented: $hudRouter.isShowHud)
             }
         #else
-
             tabView
         #endif
     }

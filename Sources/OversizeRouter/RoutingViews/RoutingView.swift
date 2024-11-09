@@ -3,13 +3,11 @@
 // RoutingView.swift, created on 28.07.2024
 //
 
-import OversizeServices
 import SwiftUI
 
 public struct RoutingView<Content, Destination>: View where Content: View, Destination: RoutableView {
     @State private var router: Router<Destination> = .init()
     @State private var alertRouter: AlertRouter = .init()
-    @State private var hudRouter: HUDRouter = .init()
 
     private let content: () -> Content
 
@@ -24,6 +22,7 @@ public struct RoutingView<Content, Destination>: View where Content: View, Desti
                     destination.view()
                 }
         }
+        .alert(item: $alertRouter.alert) { $0.alert }
         .sheet(
             item: $router.sheet,
             content: { sheet in
@@ -34,23 +33,19 @@ public struct RoutingView<Content, Destination>: View where Content: View, Desti
                             destination.view()
                         }
                 }
+
+                #if os(macOS)
+                .frame(
+                    width: router.sheetWidth,
+                    height: router.sheetHeight
+                )
+                #endif
                 .presentationDetents(router.sheetDetents)
                 .presentationDragIndicator(router.dragIndicator)
                 .interactiveDismissDisabled(router.dismissDisabled)
                 .alert(item: $alertRouter.alert) { $0.alert }
-                .systemServices()
-                .environment(router)
-                .environment(alertRouter)
-                .environment(hudRouter)
-                #if os(macOS)
-                    .frame(
-                        width: router.sheetWidth,
-                        height: router.sheetHeight
-                    )
-                #endif
             }
         )
-
         #if os(iOS)
         .fullScreenCover(item: $router.fullScreenCover) { fullScreenCover in
             NavigationStack(path: $router.sheetPath) {
@@ -61,16 +56,9 @@ public struct RoutingView<Content, Destination>: View where Content: View, Desti
                     }
             }
             .alert(item: $alertRouter.alert) { $0.alert }
-            .systemServices()
-            .environment(router)
-            .environment(alertRouter)
-            .environment(hudRouter)
         }
         #endif
-        .alert(item: $alertRouter.alert) { $0.alert }
-        .systemServices()
         .environment(router)
         .environment(alertRouter)
-        .environment(hudRouter)
     }
 }
