@@ -3,6 +3,7 @@
 
 import Foundation
 import PackageDescription
+import Foundation
 
 let remoteDependencies: [PackageDescription.Package.Dependency] = [
     .package(url: "https://github.com/oversizedev/OversizeUI.git", .upToNextMajor(from: "3.0.2")),
