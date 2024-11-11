@@ -8,9 +8,9 @@ import OversizeModels
 import SwiftUI
 
 public enum AppAlert: Alertable {
-    case dismiss(_ action: @Sendable () -> Void)
-    case delete(_ action: @Sendable () -> Void)
-    case unsavedChanges(_ action: @Sendable () -> Void)
+    case dismiss(_ action: () -> Void)
+    case delete(_ action: () -> Void)
+    case unsavedChanges(_ action: () -> Void)
     case appError(error: AppError)
     case text(_ title: String)
 }
