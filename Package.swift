@@ -3,7 +3,6 @@
 
 import Foundation
 import PackageDescription
-import Foundation
 
 let remoteDependencies: [PackageDescription.Package.Dependency] = [
     .package(url: "https://github.com/oversizedev/OversizeUI.git", .upToNextMajor(from: "3.0.2")),
@@ -17,10 +16,10 @@ let localDependencies: [PackageDescription.Package.Dependency] = [
     .package(name: "OversizeLocalizable", path: "../OversizeLocalizable"),
 ]
 
-var dependencies: [PackageDescription.Package.Dependency] = localDependencies
+var dependencies: [PackageDescription.Package.Dependency] = remoteDependencies
 
-if ProcessInfo.processInfo.environment["BUILD_MODE"] == "PRODUCTION" {
-    dependencies = remoteDependencies
+if ProcessInfo.processInfo.environment["BUILD_MODE"] == "DEV" {
+    dependencies = localDependencies
 }
 
 let package = Package(
