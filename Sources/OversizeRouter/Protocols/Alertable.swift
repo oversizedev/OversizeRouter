@@ -5,7 +5,7 @@
 
 import Foundation
 
-public protocol Alertable: Equatable, Hashable, Identifiable, Sendable {}
+public protocol Alertable: Equatable, Hashable, Identifiable {}
 
 public extension Alertable {
     static func == (lhs: Self, rhs: Self) -> Bool {
