@@ -6,8 +6,9 @@
 import SwiftUI
 
 public struct RoutingView<Content, Destination>: View where Content: View, Destination: RoutableView {
-    @State private var router: Router<Destination> = .init()
+    @State public var router: Router<Destination> = .init()
     @State private var alertRouter: AlertRouter = .init()
+    @Environment(HUDRouter.self) var hudRouter
 
     private let content: () -> Content
 
@@ -20,6 +21,9 @@ public struct RoutingView<Content, Destination>: View where Content: View, Desti
             content()
                 .navigationDestination(for: Destination.self) { destination in
                     destination.view()
+                        .environment(router)
+                        .environment(alertRouter)
+                        .environment(hudRouter)
                 }
         }
         .alert(item: $alertRouter.alert) { $0.alert }
@@ -27,8 +31,7 @@ public struct RoutingView<Content, Destination>: View where Content: View, Desti
             item: $router.sheet,
             content: { sheet in
                 NavigationStack(path: $router.sheetPath) {
-                    sheet
-                        .view()
+                    sheet.view()
                         .navigationDestination(for: Destination.self) { destination in
                             destination.view()
                         }
@@ -40,10 +43,11 @@ public struct RoutingView<Content, Destination>: View where Content: View, Desti
                     height: router.sheetHeight
                 )
                 #endif
+                .alert(item: $alertRouter.alert) { $0.alert }
                 .presentationDetents(router.sheetDetents)
                 .presentationDragIndicator(router.dragIndicator)
                 .interactiveDismissDisabled(router.dismissDisabled)
-                .alert(item: $alertRouter.alert) { $0.alert }
+                .environment(router)
             }
         )
         #if os(iOS)
@@ -60,5 +64,9 @@ public struct RoutingView<Content, Destination>: View where Content: View, Desti
         #endif
         .environment(router)
         .environment(alertRouter)
+        .environment(hudRouter)
+        .onOpenURL { url in
+            router.handleDeeplink(url: url)
+        }
     }
 }

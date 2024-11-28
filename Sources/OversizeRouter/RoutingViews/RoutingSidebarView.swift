@@ -20,16 +20,16 @@ public struct RoutingSidebarView<Tab>: View where Tab: TabableView {
 
     public var body: some View {
         #if os(iOS) || os(macOS) || os(tvOS) || os(visionOS)
-            if #available(iOS 18.0, macOS 15.0, tvOS 18.0, visionOS 2.0, *) {
-                tabView
-                    .tabViewStyle(.sidebarAdaptable)
-                    .hud(hudRouter.hudText, isPresented: $hudRouter.isShowHud)
-            } else {
-                tabView
-                    .hud(hudRouter.hudText, isPresented: $hudRouter.isShowHud)
-            }
-        #else
+        if #available(iOS 18.0, macOS 15.0, tvOS 18.0, visionOS 2.0, *) {
             tabView
+                .tabViewStyle(.sidebarAdaptable)
+                .hud(hudRouter.hudText, isPresented: $hudRouter.isShowHud)
+        } else {
+            tabView
+                .hud(hudRouter.hudText, isPresented: $hudRouter.isShowHud)
+        }
+        #else
+        tabView
         #endif
     }
 
