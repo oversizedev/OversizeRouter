@@ -13,6 +13,18 @@ public enum AppAlert: Alertable {
     case unsavedChanges(_ action: () -> Void)
     case appError(error: AppError)
     case text(_ title: String)
+    case destructive(
+        _ title: String,
+        message: String? = nil,
+        button: String = "Ok",
+        _ action: () -> Void
+    )
+    case `default`(
+        _ title: String,
+        message: String? = nil,
+        button: String = "Ok",
+        _ action: () -> Void
+    )
 }
 
 public extension AppAlert {
@@ -28,6 +40,10 @@ public extension AppAlert {
             "appError"
         case .text:
             "textTitle"
+        case .destructive:
+            "destructive"
+        case .default:
+            "default`"
         }
     }
 }
@@ -58,12 +74,26 @@ public extension AppAlert {
             Alert(
                 title: Text(error.title),
                 message: error.subtitle == nil ? nil : Text(error.subtitle ?? ""),
-                dismissButton: .cancel()
+                dismissButton: .default(Text("Close"))
             )
         case let .text(title):
             Alert(
                 title: Text(title),
-                dismissButton: .default(Text("Ok"))
+                dismissButton: .default(Text("Close"))
+            )
+        case let .destructive(title, message, button, action):
+            Alert(
+                title: Text(title),
+                message: message == nil ? nil : Text(message ?? ""),
+                primaryButton: .destructive(Text(button), action: action),
+                secondaryButton: .cancel()
+            )
+        case let .default(title, message, button, action):
+            Alert(
+                title: Text(title),
+                message: message == nil ? nil : Text(message ?? ""),
+                primaryButton: .default(Text(button), action: action),
+                secondaryButton: .cancel()
             )
         }
     }

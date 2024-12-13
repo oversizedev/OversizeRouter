@@ -49,8 +49,8 @@ public extension HUDRouter {
         loaderStatus = .progress(nil)
     }
 
-    func hideLoader(style: HUDMessageType = .default, status: HUDLoaderStatus) {
-        hudText = ""
+    func hideLoader(_ text: String = "", style: HUDMessageType = .default, status: HUDLoaderStatus) {
+        hudText = text
         self.style = style
         isAutoHide = true
         isShowHud = false
