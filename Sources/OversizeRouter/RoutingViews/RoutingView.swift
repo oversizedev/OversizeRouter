@@ -27,9 +27,18 @@ public struct RoutingView<Content, Destination>: View where Content: View, Desti
                 }
         }
         .alert(item: $alertRouter.alert) { $0.alert }
-        .sheets(router: $router.sheetStack) { sheet in
+        .sheet(
+            item: Binding(
+                get: { router.sheetStack.first },
+                set: { _ in
+                    if !router.sheetStack.isEmpty {
+                        router.sheetStack.removeFirst()
+                    }
+                }
+            )
+        ) { sheet in
             NavigationStack(path: Binding(
-                get: { router.sheetStack.last?.sheetPath ?? NavigationPath() },
+                get: { sheet.sheetPath },
                 set: { newPath in
                     if let index = router.sheetStack.firstIndex(where: { $0.id == sheet.id }) {
                         router.sheetStack[index].sheetPath = newPath
@@ -48,7 +57,35 @@ public struct RoutingView<Content, Destination>: View where Content: View, Desti
             #if os(macOS)
                 .frame(width: sheet.sheetWidth, height: sheet.sheetHeight)
             #endif
+                .sheets(router: Binding(
+                    get: { Array(router.sheetStack.dropFirst()) },
+                    set: { newStack in
+                        router.sheetStack = newStack
+                    }
+                )) { sheet in
+                    NavigationStack(path: Binding(
+                        get: { sheet.sheetPath },
+                        set: { newPath in
+                            if let index = router.sheetStack.firstIndex(where: { $0.id == sheet.id }) {
+                                router.sheetStack[index].sheetPath = newPath
+                            }
+                        }
+                    )) {
+                        sheet.sheet.view()
+                            .navigationDestination(for: Destination.self) { destination in
+                                destination.view()
+                            }
+                    }
+                    .presentationDetents(sheet.sheetDetents)
+                    .presentationDragIndicator(sheet.dragIndicator)
+                    .interactiveDismissDisabled(sheet.dismissDisabled)
+                    .alert(item: $alertRouter.alert) { $0.alert }
+                    #if os(macOS)
+                        .frame(width: sheet.sheetWidth, height: sheet.sheetHeight)
+                    #endif
+                }
         }
+
         .environment(router)
         .environment(alertRouter)
         .environment(hudRouter)
