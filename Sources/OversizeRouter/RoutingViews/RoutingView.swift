@@ -94,7 +94,7 @@ public struct RoutingView<Content, Destination>: View where Content: View, Desti
         }
         #if os(iOS)
         .fullScreenCover(item: $router.fullScreenCover) { fullScreenCover in
-            NavigationStack(path: $router.sheetPath) {
+            NavigationStack(path: $router.fullScreenCoverPath) {
                 fullScreenCover
                     .view()
                     .navigationDestination(for: Destination.self) { destination in
