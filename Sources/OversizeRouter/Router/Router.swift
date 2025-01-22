@@ -1,36 +1,28 @@
+//
+// Copyright © 2024 Alexander Romanov
+// Router.swift, created on 13.04.2024
+//
+
 import SwiftUI
 
+@MainActor
 @Observable
-public final class Router<Destination: Routable>: ObservableObject {
+public final class Router<Destination: Routable> {
     // Path
     public var path = NavigationPath()
+    public var sheetPath = NavigationPath()
     public var fullScreenCoverPath = NavigationPath()
-    public var sheetStack: [Sheet<Destination>] = []
 
     // Sheets
-    public var menu: Destination?
+    public var sheet: Destination?
     public var fullScreenCover: Destination?
-
-    public var sheetDetents: Set<PresentationDetent> {
-        sheetStack.last?.sheetDetents ?? []
-    }
-
-    public var dragIndicator: Visibility {
-        sheetStack.last?.dragIndicator ?? .hidden
-    }
-
-    public var dismissDisabled: Bool {
-        sheetStack.last?.dismissDisabled ?? false
-    }
-
+    public var menu: Destination?
+    public var sheetDetents: Set<PresentationDetent> = []
+    public var dragIndicator: Visibility = .hidden
+    public var dismissDisabled: Bool = false
     #if os(macOS)
-    public var sheetHeight: CGFloat {
-        sheetStack.last?.sheetHeight ?? 500
-    }
-
-    public var sheetWidth: CGFloat? {
-        sheetStack.last?.sheetWidth
-    }
+    public var sheetHeight: CGFloat = 500
+    public var sheetWidth: CGFloat?
     #endif
 
     var deeplinkHandler: DeeplinkHandler<Destination>?
@@ -38,8 +30,6 @@ public final class Router<Destination: Routable>: ObservableObject {
     public init(deeplinkHandler: DeeplinkHandler<Destination>? = nil) {
         self.deeplinkHandler = deeplinkHandler
     }
-
-    public init() {}
 }
 
 public extension Router {
@@ -50,37 +40,19 @@ public extension Router {
 
 public extension Router {
     func move(_ screen: Destination) {
-        if sheetStack.isEmpty {
-            path.append(screen)
-        } else if let lastIndex = sheetStack.indices.last {
-            sheetStack[lastIndex].sheetPath.append(screen)
-        }
+        path.append(screen)
     }
 
     func backToRoot() {
-        if sheetStack.isEmpty {
-            path.removeLast(path.count)
-        } else if var lastSheet = sheetStack.last {
-            lastSheet.sheetPath.removeLast(lastSheet.sheetPath.count)
-            sheetStack[sheetStack.count - 1] = lastSheet
-        }
+        path.removeLast(path.count)
     }
 
     func back(_ count: Int = 1) {
-        if sheetStack.isEmpty {
-            let pathCount = path.count - count
-            if pathCount > -1 {
-                path.removeLast(count)
-            }
-        } else if var lastSheet = sheetStack.last {
-            let pathCount = lastSheet.sheetPath.count - count
-            if pathCount > -1 {
-                lastSheet.sheetPath.removeLast(count)
-            }
+        let pathCount = path.count - count
+        if pathCount > -1 {
+            path.removeLast(count)
         }
     }
-
-    // MARK: - Deep Link Handling
 
     #if os(macOS)
     func handleDeeplink(url: URL) {
@@ -108,7 +80,7 @@ public extension Router {
                     dismissDisabled: dismissDisabled
                 )
 
-            case .presentFullScreen:
+            case let .presentFullScreen:
                 present(destination, fullScreen: true)
             }
         }
@@ -116,69 +88,83 @@ public extension Router {
     #endif
 }
 
-public extension Router {
-    // MARK: - Sheet Management
+// MARK: - Sheets
 
+public extension Router {
     #if os(macOS)
     func present(_ sheet: Destination, sheetHeight: CGFloat = 500, sheetWidth: CGFloat? = nil) {
-        let newSheet = Sheet(
-            sheet: sheet,
-            sheetHeight: sheetHeight,
-            sheetWidth: sheetWidth
-        )
-        sheetStack.append(newSheet)
+        restSheet()
+        self.sheetHeight = sheetHeight
+        self.sheetWidth = sheetWidth
+        self.sheet = sheet
     }
     #else
-
-    func present(_ sheet: Destination, fullScreen: Bool) {
+    func present(_ sheet: Destination, fullScreen: Bool = false) {
         if fullScreen {
+            if fullScreenCover != nil {
+                fullScreenCover = nil
+            }
             fullScreenCover = sheet
         } else {
-            let newSheet = Sheet(sheet: sheet)
-            sheetStack.append(newSheet)
+            restSheet()
+            self.sheet = sheet
         }
     }
 
     func present(_ sheet: Destination, detents: Set<PresentationDetent> = [.large], indicator: Visibility = .hidden, dismissDisabled: Bool = false) {
-        let newSheet = Sheet(
-            sheet: sheet,
-            sheetDetents: detents,
-            dragIndicator: indicator,
-            dismissDisabled: dismissDisabled
-        )
-        sheetStack.append(newSheet)
+        restSheet()
+        sheetDetents = detents
+        dragIndicator = indicator
+        self.dismissDisabled = dismissDisabled
+        self.sheet = sheet
     }
     #endif
 
     func backOrDismiss() {
-        if !sheetStack.isEmpty {
-            sheetStack.removeLast()
-        } else if !path.isEmpty {
-            path.removeLast()
+        if sheet != nil || fullScreenCover != nil {
+            sheet = nil
+            fullScreenCover = nil
+        } else {
+            back()
         }
     }
 
     func dismiss() {
-        if !sheetStack.isEmpty {
-            sheetStack.removeLast()
-        } else {
-            fullScreenCover = nil
-        }
+        sheet = nil
+        fullScreenCover = nil
     }
 
     func dismissSheet() {
-        if !sheetStack.isEmpty {
-            sheetStack.removeLast()
-        }
+        sheet = nil
+    }
+
+    func dismissFullScreenCover() {
+        fullScreenCover = nil
     }
 
     func dismissDisabled(_ isDismissDisabled: Bool = true) {
-        if let lastSheetIndex = sheetStack.indices.last {
-            sheetStack[lastSheetIndex].dismissDisabled = isDismissDisabled
-        }
+        dismissDisabled = isDismissDisabled
     }
 
-    func dismissAllSheets() {
-        sheetStack.removeAll()
+    private func restSheet() {
+        if sheet != nil {
+            sheet = nil
+        }
+        if fullScreenCover != nil {
+            fullScreenCover = nil
+        }
+        if dragIndicator != .hidden {
+            dragIndicator = .hidden
+        }
+        if dismissDisabled {
+            dismissDisabled = false
+        }
+        if sheetDetents.isEmpty == false {
+            sheetDetents = []
+        }
+        #if os(macOS)
+        sheetHeight = 500
+        sheetWidth = nil
+        #endif
     }
 }

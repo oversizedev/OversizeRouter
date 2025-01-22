@@ -12,6 +12,8 @@ public protocol Tabable: CaseIterable, Equatable, Identifiable, Hashable, Sendab
 
 public protocol TabableView: Tabable {
     associatedtype ViewType: View
+    
+    @MainActor @ViewBuilder
     func view() -> ViewType
 }
 

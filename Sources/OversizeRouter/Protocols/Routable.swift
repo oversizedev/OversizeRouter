@@ -9,6 +9,8 @@ public protocol Routable: Equatable, Hashable, Identifiable, Sendable {}
 
 public protocol RoutableView: Routable {
     associatedtype ViewType: View
+
+    @MainActor @ViewBuilder
     func view() -> ViewType
 }
 

@@ -5,6 +5,7 @@
 
 import Foundation
 
+@MainActor
 @Observable
 public class TabRouter<Tab: Tabable> {
     public var selection: Tab
@@ -19,3 +20,4 @@ public class TabRouter<Tab: Tabable> {
         self.selection = selection
     }
 }
+

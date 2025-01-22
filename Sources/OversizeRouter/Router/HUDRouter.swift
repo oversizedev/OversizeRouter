@@ -22,6 +22,7 @@ public enum HUDLoaderStatus: Sendable {
     case failure
 }
 
+@MainActor
 @Observable
 public class HUDRouter {
     public var isShowHud: Bool = false
