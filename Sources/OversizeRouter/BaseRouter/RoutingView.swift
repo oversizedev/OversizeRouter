@@ -6,13 +6,19 @@
 import SwiftUI
 
 public struct RoutingView<Content, Destination>: View where Content: View, Destination: RoutableView {
-    @State public var router: Router<Destination> = .init()
+    @State public var router: Router<Destination>
     @State private var alertRouter: AlertRouter = .init()
     @Environment(HUDRouter.self) var hudRouter
 
     private let content: () -> Content
 
     public init(@ViewBuilder content: @escaping () -> Content) {
+        router = .init()
+        self.content = content
+    }
+
+    public init(router: Router<Destination>, @ViewBuilder content: @escaping () -> Content) {
+        self.router = router
         self.content = content
     }
 

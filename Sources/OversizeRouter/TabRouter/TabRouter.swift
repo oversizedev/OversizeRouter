@@ -3,7 +3,7 @@
 // TabRouter.swift, created on 13.04.2024
 //
 
-import Foundation
+import SwiftUI
 
 @MainActor
 @Observable
@@ -20,4 +20,3 @@ public class TabRouter<Tab: Tabable> {
         self.selection = selection
     }
 }
-
