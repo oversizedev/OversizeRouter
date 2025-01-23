@@ -14,6 +14,7 @@ public class SplitRouter<Tab: Tabable, Destination: Routable> {
     // Paths
     public var sheetPath = NavigationPath()
     public var overlaySheetPath = NavigationPath()
+    public var fullScreenCoverPath = NavigationPath()
 
     // Sheets
     public var sheet: Destination?
