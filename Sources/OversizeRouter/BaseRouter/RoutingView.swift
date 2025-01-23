@@ -33,10 +33,27 @@ public struct RoutingView<Content, Destination>: View where Content: View, Desti
                 }
         }
         .alert(item: $alertRouter.alert) { $0.alert }
-        .sheet(
-            item: $router.sheet,
-            content: { sheet in
-                NavigationStack(path: $router.sheetPath) {
+        .sheet(item: $router.sheet, onDismiss: router.onDismiss) { sheet in
+            NavigationStack(path: $router.sheetPath) {
+                sheet.view()
+                    .navigationDestination(for: Destination.self) { destination in
+                        destination.view()
+                    }
+            }
+
+            #if os(macOS)
+            .frame(
+                width: router.sheetWidth,
+                height: router.sheetHeight
+            )
+            #endif
+            .presentationDetents(router.sheetDetents)
+            .presentationDragIndicator(router.dragIndicator)
+            .interactiveDismissDisabled(router.dismissDisabled)
+            .alert(item: $alertRouter.alert) { $0.alert }
+            .environment(router)
+            .sheet(item: $router.overlaySheet, onDismiss: router.onDismiss) { sheet in
+                NavigationStack(path: $router.overlaySheetPath) {
                     sheet.view()
                         .navigationDestination(for: Destination.self) { destination in
                             destination.view()
@@ -45,19 +62,19 @@ public struct RoutingView<Content, Destination>: View where Content: View, Desti
 
                 #if os(macOS)
                 .frame(
-                    width: router.sheetWidth,
-                    height: router.sheetHeight
+                    width: router.overlaySheetWidth,
+                    height: router.overlaySheetHeight
                 )
                 #endif
                 .alert(item: $alertRouter.alert) { $0.alert }
-                .presentationDetents(router.sheetDetents)
-                .presentationDragIndicator(router.dragIndicator)
-                .interactiveDismissDisabled(router.dismissDisabled)
+                .presentationDetents(router.overlaySheetDetents)
+                .presentationDragIndicator(router.overlayDragIndicator)
+                .interactiveDismissDisabled(router.overlayDismissDisabled)
                 .environment(router)
             }
-        )
+        }
         #if os(iOS)
-        .fullScreenCover(item: $router.fullScreenCover) { fullScreenCover in
+        .fullScreenCover(item: $router.fullScreenCover, onDismiss: router.onDismiss) { fullScreenCover in
             NavigationStack(path: $router.sheetPath) {
                 fullScreenCover
                     .view()
@@ -66,6 +83,26 @@ public struct RoutingView<Content, Destination>: View where Content: View, Desti
                     }
             }
             .alert(item: $alertRouter.alert) { $0.alert }
+            .sheet(item: $router.overlaySheet, onDismiss: router.onDismiss) { sheet in
+                NavigationStack(path: $router.overlaySheetPath) {
+                    sheet.view()
+                        .navigationDestination(for: Destination.self) { destination in
+                            destination.view()
+                        }
+                }
+
+                #if os(macOS)
+                .frame(
+                    width: router.overlaySheetWidth,
+                    height: router.overlaySheetHeight
+                )
+                #endif
+                .alert(item: $alertRouter.alert) { $0.alert }
+                .presentationDetents(router.overlaySheetDetents)
+                .presentationDragIndicator(router.overlayDragIndicator)
+                .interactiveDismissDisabled(router.overlayDismissDisabled)
+                .environment(router)
+            }
         }
         #endif
         .environment(router)
