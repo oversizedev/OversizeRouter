@@ -52,7 +52,7 @@ public struct RoutingView<Content, Destination>: View where Content: View, Desti
             .interactiveDismissDisabled(router.dismissDisabled)
             .alert(item: $alertRouter.alert) { $0.alert }
             .environment(router)
-            .sheet(item: $router.overlaySheet, onDismiss: router.onDismiss) { sheet in
+            .sheet(item: $router.overlaySheet, onDismiss: router.overlayOnDismiss) { sheet in
                 NavigationStack(path: $router.overlaySheetPath) {
                     sheet.view()
                         .navigationDestination(for: Destination.self) { destination in

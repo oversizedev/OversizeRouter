@@ -33,6 +33,7 @@ public final class Router<Destination: Routable> {
     #endif
 
     var onDismiss: (() -> Void)?
+    var overlayOnDismiss: (() -> Void)?
     var deeplinkHandler: DeeplinkHandler<Destination>?
 
     public init(deeplinkHandler: DeeplinkHandler<Destination>? = nil) {
@@ -101,24 +102,26 @@ public extension Router {
 public extension Router {
     #if os(macOS)
     func present(_ sheet: Destination, sheetHeight: CGFloat = 500, sheetWidth: CGFloat? = nil, onDismiss: (() -> Void)? = nil) {
-        if overlaySheet == nil {
+        if overlaySheet != nil {
+            restOverlaySheet()
+            overlaySheetHeight = sheetHeight
+            overlaySheetWidth = sheetWidth
+            overlaySheet = sheet
+            overlayOnDismiss = onDismiss
+        } else {
             if self.sheet == nil {
                 restSheet()
                 self.sheetHeight = sheetHeight
                 self.sheetWidth = sheetWidth
                 self.sheet = sheet
+                self.onDismiss = onDismiss
             } else {
                 overlaySheetHeight = sheetHeight
                 overlaySheetWidth = sheetWidth
                 overlaySheet = sheet
+                overlayOnDismiss = onDismiss
             }
-        } else {
-            restOverlaySheet()
-            overlaySheetHeight = sheetHeight
-            overlaySheetWidth = sheetWidth
-            overlaySheet = sheet
         }
-        self.onDismiss = onDismiss
     }
     #else
     func present(_ sheet: Destination, fullScreen: Bool = false, onDismiss: (() -> Void)? = nil) {

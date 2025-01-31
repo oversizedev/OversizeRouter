@@ -46,46 +46,59 @@ public struct RoutingSplitView<TopSidebar, BottomSidebar, Tab, Destination>: Vie
             sidebar.navigationSplitViewColumnWidth(min: 200, ideal: 280, max: 350)
                 .environment(hudRouter)
                 .environment(router)
-                .environment(alertRouter)
+            /// .environment(alertRouter)
         } detail: {
             router.selection
                 .view()
                 .environment(hudRouter)
                 .environment(router)
-                .environment(alertRouter)
+            // .environment(alertRouter)
         }
         .hud(hudRouter.hudText, autoHide: hudRouter.isAutoHide, isPresented: $hudRouter.isShowHud)
-        .alert(item: $alertRouter.alert) { $0.alert }
-        .sheet(
-            item: $router.sheet,
-            content: { sheet in
-                NavigationStack(path: $router.sheetPath) {
+        // .alert(item: $alertRouter.alert) { $0.alert }
+        .sheet(item: $router.sheet, onDismiss: router.onDismiss) { sheet in
+            NavigationStack(path: $router.sheetPath) {
+                sheet.view()
+                    .navigationDestination(for: Destination.self) { destination in
+                        destination.view()
+                    }
+            }
+
+            #if os(macOS)
+            .frame(
+                width: router.sheetWidth,
+                height: router.sheetHeight
+            )
+            #endif
+            .presentationDetents(router.sheetDetents)
+            .presentationDragIndicator(router.dragIndicator)
+            .interactiveDismissDisabled(router.dismissDisabled)
+            .alert(item: $alertRouter.alert) { $0.alert }
+            .environment(router)
+            .sheet(item: $router.overlaySheet, onDismiss: router.overlayOnDismiss) { sheet in
+                NavigationStack(path: $router.overlaySheetPath) {
                     sheet.view()
                         .navigationDestination(for: Destination.self) { destination in
                             destination.view()
-                                .environment(router)
-                                .environment(hudRouter)
-                                .environment(alertRouter)
                         }
                 }
+
                 #if os(macOS)
                 .frame(
-                    width: router.sheetWidth,
-                    height: router.sheetHeight
+                    width: router.overlaySheetWidth,
+                    height: router.overlaySheetHeight
                 )
                 #endif
                 .alert(item: $alertRouter.alert) { $0.alert }
-                .presentationDetents(router.sheetDetents)
-                .presentationDragIndicator(router.dragIndicator)
-                .interactiveDismissDisabled(router.dismissDisabled)
+                .presentationDetents(router.overlaySheetDetents)
+                .presentationDragIndicator(router.overlayDragIndicator)
+                .interactiveDismissDisabled(router.overlayDismissDisabled)
                 .environment(router)
-                .environment(hudRouter)
-                .environment(alertRouter)
             }
-        )
+        }
         #if os(iOS)
-        .fullScreenCover(item: $router.fullScreenCover) { fullScreenCover in
-            NavigationStack(path: $router.fullScreenCoverPath) {
+        .fullScreenCover(item: $router.fullScreenCover, onDismiss: router.onDismiss) { fullScreenCover in
+            NavigationStack(path: $router.sheetPath) {
                 fullScreenCover
                     .view()
                     .navigationDestination(for: Destination.self) { destination in
@@ -93,6 +106,26 @@ public struct RoutingSplitView<TopSidebar, BottomSidebar, Tab, Destination>: Vie
                     }
             }
             .alert(item: $alertRouter.alert) { $0.alert }
+            .sheet(item: $router.overlaySheet, onDismiss: router.overlayOnDismiss) { sheet in
+                NavigationStack(path: $router.overlaySheetPath) {
+                    sheet.view()
+                        .navigationDestination(for: Destination.self) { destination in
+                            destination.view()
+                        }
+                }
+
+                #if os(macOS)
+                .frame(
+                    width: router.overlaySheetWidth,
+                    height: router.overlaySheetHeight
+                )
+                #endif
+                .alert(item: $alertRouter.alert) { $0.alert }
+                .presentationDetents(router.overlaySheetDetents)
+                .presentationDragIndicator(router.overlayDragIndicator)
+                .interactiveDismissDisabled(router.overlayDismissDisabled)
+                .environment(router)
+            }
         }
         #endif
         .environment(router)
