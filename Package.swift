@@ -16,11 +16,7 @@ let localDependencies: [PackageDescription.Package.Dependency] = [
     .package(name: "OversizeLocalizable", path: "../OversizeLocalizable"),
 ]
 
-var dependencies: [PackageDescription.Package.Dependency] = remoteDependencies
-
-if ProcessInfo.processInfo.environment["BUILD_MODE"] == "DEV" {
-    dependencies = localDependencies
-}
+let dependencies: [PackageDescription.Package.Dependency] = remoteDependencies
 
 let package = Package(
     name: "OversizeRouter",

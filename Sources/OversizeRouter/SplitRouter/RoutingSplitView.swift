@@ -12,9 +12,11 @@ public struct RoutingSplitView<TopSidebar, BottomSidebar, Tab, Destination>: Vie
     TopSidebar: View,
     BottomSidebar: View
 {
-    @State private var router: SplitRouter<Tab, Destination>
+    @State private var splitRouter: SplitRouter<Tab, Destination>
     @State private var hudRouter: HUDRouter = .init()
+    #if os(macOS)
     @State private var alertRouter: AlertRouter = .init()
+    #endif
     @State var navigationSplitViewVisibility: NavigationSplitViewVisibility = .all
 
     private let topSidebar: TopSidebar?
@@ -25,7 +27,7 @@ public struct RoutingSplitView<TopSidebar, BottomSidebar, Tab, Destination>: Vie
         @ViewBuilder topSidebar: () -> TopSidebar,
         @ViewBuilder bottomSidebar: () -> BottomSidebar
     ) {
-        self.router = router
+        splitRouter = router
         self.topSidebar = topSidebar()
         self.bottomSidebar = bottomSidebar()
     }
@@ -36,7 +38,7 @@ public struct RoutingSplitView<TopSidebar, BottomSidebar, Tab, Destination>: Vie
         @ViewBuilder topSidebar: () -> TopSidebar,
         @ViewBuilder bottomSidebar: () -> BottomSidebar
     ) {
-        router = .init(selection: selection, tabs: tabs)
+        splitRouter = .init(selection: selection, tabs: tabs)
         self.topSidebar = topSidebar()
         self.bottomSidebar = bottomSidebar()
     }
@@ -45,117 +47,80 @@ public struct RoutingSplitView<TopSidebar, BottomSidebar, Tab, Destination>: Vie
         NavigationSplitView(columnVisibility: $navigationSplitViewVisibility) {
             sidebar.navigationSplitViewColumnWidth(min: 200, ideal: 280, max: 350)
                 .environment(hudRouter)
-                .environment(router)
-            /// .environment(alertRouter)
+                .environment(splitRouter)
+                .environment(alertRouter)
         } detail: {
-            router.selection
+            splitRouter.selection
                 .view()
                 .environment(hudRouter)
-                .environment(router)
-            // .environment(alertRouter)
+                .environment(splitRouter)
+                .environment(alertRouter)
         }
         .hud(hudRouter.hudText, autoHide: hudRouter.isAutoHide, isPresented: $hudRouter.isShowHud)
-        // .alert(item: $alertRouter.alert) { $0.alert }
-        .sheet(item: $router.sheet, onDismiss: router.onDismiss) { sheet in
-            NavigationStack(path: $router.sheetPath) {
-                sheet.view()
-                    .navigationDestination(for: Destination.self) { destination in
-                        destination.view()
-                    }
-            }
-
-            #if os(macOS)
-            .frame(
-                width: router.sheetWidth,
-                height: router.sheetHeight
-            )
-            #endif
-            .presentationDetents(router.sheetDetents)
-            .presentationDragIndicator(router.dragIndicator)
-            .interactiveDismissDisabled(router.dismissDisabled)
+        #if os(macOS)
             .alert(item: $alertRouter.alert) { $0.alert }
-            .environment(router)
-            .sheet(item: $router.overlaySheet, onDismiss: router.overlayOnDismiss) { sheet in
-                NavigationStack(path: $router.overlaySheetPath) {
+            .sheet(item: $splitRouter.sheet, onDismiss: splitRouter.onDismiss) { sheet in
+                NavigationStack(path: $splitRouter.sheetPath) {
                     sheet.view()
                         .navigationDestination(for: Destination.self) { destination in
                             destination.view()
                         }
                 }
 
-                #if os(macOS)
                 .frame(
-                    width: router.overlaySheetWidth,
-                    height: router.overlaySheetHeight
+                    width: splitRouter.sheetWidth,
+                    height: splitRouter.sheetHeight
                 )
-                #endif
-                .alert(item: $alertRouter.alert) { $0.alert }
-                .presentationDetents(router.overlaySheetDetents)
-                .presentationDragIndicator(router.overlayDragIndicator)
-                .interactiveDismissDisabled(router.overlayDismissDisabled)
-                .environment(router)
-            }
-        }
-        #if os(iOS)
-        .fullScreenCover(item: $router.fullScreenCover, onDismiss: router.onDismiss) { fullScreenCover in
-            NavigationStack(path: $router.sheetPath) {
-                fullScreenCover
-                    .view()
-                    .navigationDestination(for: Destination.self) { destination in
-                        destination.view()
-                    }
-            }
-            .alert(item: $alertRouter.alert) { $0.alert }
-            .sheet(item: $router.overlaySheet, onDismiss: router.overlayOnDismiss) { sheet in
-                NavigationStack(path: $router.overlaySheetPath) {
-                    sheet.view()
-                        .navigationDestination(for: Destination.self) { destination in
-                            destination.view()
-                        }
-                }
 
-                #if os(macOS)
-                .frame(
-                    width: router.overlaySheetWidth,
-                    height: router.overlaySheetHeight
-                )
-                #endif
+                .presentationDetents(splitRouter.sheetDetents)
+                .presentationDragIndicator(splitRouter.dragIndicator)
+                .interactiveDismissDisabled(splitRouter.dismissDisabled)
                 .alert(item: $alertRouter.alert) { $0.alert }
-                .presentationDetents(router.overlaySheetDetents)
-                .presentationDragIndicator(router.overlayDragIndicator)
-                .interactiveDismissDisabled(router.overlayDismissDisabled)
-                .environment(router)
+                .environment(splitRouter)
+                .environment(alertRouter)
+                .sheet(item: $splitRouter.overlaySheet, onDismiss: splitRouter.overlayOnDismiss) { sheet in
+                    NavigationStack(path: $splitRouter.overlaySheetPath) {
+                        sheet.view()
+                            .navigationDestination(for: Destination.self) { destination in
+                                destination.view()
+                            }
+                    }
+
+                    .frame(
+                        width: splitRouter.overlaySheetWidth,
+                        height: splitRouter.overlaySheetHeight
+                    )
+
+                    .alert(item: $alertRouter.alert) { $0.alert }
+                    .presentationDetents(splitRouter.overlaySheetDetents)
+                    .presentationDragIndicator(splitRouter.overlayDragIndicator)
+                    .interactiveDismissDisabled(splitRouter.overlayDismissDisabled)
+                    .environment(splitRouter)
+                    .environment(alertRouter)
+                }
             }
-        }
         #endif
-        .environment(router)
-        .environment(alertRouter)
-        .environment(hudRouter)
+            .environment(splitRouter)
+            .environment(hudRouter)
     }
 
     private var sidebar: some View {
+        #if os(iOS) || os(watchOS) || os(tvOS)
+        List {
+            ForEach(splitRouter.tabs) { menu in
+                NavigationLink(value: menu) {
+                    Text(menu.title)
+                }
+            }
+        }
         #if os(iOS)
-        List {
-            ForEach(router.tabs) { menu in
-                NavigationLink(value: menu) {
-                    Text(menu.title)
-                }
-            }
-        }
         .listStyle(.sidebar)
-        #elseif os(watchOS) || os(tvOS)
-        List {
-            ForEach(router.tabs) { menu in
-                NavigationLink(value: menu) {
-                    Text(menu.title)
-                }
-            }
-        }
+        #endif
         #else
-        List(selection: $router.selection) {
+        List(selection: $splitRouter.selection) {
             topSidebar
 
-            ForEach(router.tabs) { menu in
+            ForEach(splitRouter.tabs) { menu in
                 NavigationLink(value: menu) {
                     HStack(spacing: 10) {
                         menu.icon
@@ -177,7 +142,6 @@ public struct RoutingSplitView<TopSidebar, BottomSidebar, Tab, Destination>: Vie
         .listRowSeparator(.hidden)
         .listRowSeparator(.hidden, edges: .all)
         .listRowSeparatorTint(nil)
-
         #endif
     }
 }

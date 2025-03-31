@@ -5,6 +5,25 @@
 
 import SwiftUI
 
+#if !os(macOS)
+@MainActor
+@Observable
+public class SplitRouter<Tab: Tabable, Destination: Routable> {
+    public var selection: Tab
+    public var tabs: [Tab]
+
+    public init(selection: Tab, tabs: [Tab]) {
+        self.selection = selection
+        self.tabs = tabs
+    }
+
+    public func changeTab(_ selection: Tab) {
+        self.selection = selection
+    }
+}
+#endif
+
+#if os(macOS)
 @MainActor
 @Observable
 public class SplitRouter<Tab: Tabable, Destination: Routable> {
@@ -19,7 +38,7 @@ public class SplitRouter<Tab: Tabable, Destination: Routable> {
     // Sheets
     public var sheet: Destination?
     public var overlaySheet: Destination?
-    public var fullScreenCover: Destination?
+
     public var menu: Destination?
     public var sheetDetents: Set<PresentationDetent> = []
     public var dragIndicator: Visibility = .hidden
@@ -27,12 +46,11 @@ public class SplitRouter<Tab: Tabable, Destination: Routable> {
     public var overlaySheetDetents: Set<PresentationDetent> = []
     public var overlayDragIndicator: Visibility = .hidden
     public var overlayDismissDisabled: Bool = false
-    #if os(macOS)
+
     public var sheetHeight: CGFloat = 500
     public var sheetWidth: CGFloat?
     public var overlaySheetHeight: CGFloat = 500
     public var overlaySheetWidth: CGFloat?
-    #endif
 
     var onDismiss: (() -> Void)?
     var overlayOnDismiss: (() -> Void)?
@@ -48,7 +66,6 @@ public class SplitRouter<Tab: Tabable, Destination: Routable> {
 }
 
 public extension SplitRouter {
-    #if os(macOS)
     func present(_ sheet: Destination, sheetHeight: CGFloat = 500, sheetWidth: CGFloat? = nil, onDismiss: (() -> Void)? = nil) {
         if overlaySheet != nil {
             restOverlaySheet()
@@ -71,29 +88,6 @@ public extension SplitRouter {
             }
         }
     }
-    #else
-    func present(_ sheet: Destination, fullScreen: Bool = false, onDismiss: (() -> Void)? = nil) {
-        if fullScreen {
-            if fullScreenCover != nil {
-                fullScreenCover = nil
-            }
-            fullScreenCover = sheet
-        } else {
-            restSheet()
-            self.sheet = sheet
-        }
-        self.onDismiss = onDismiss
-    }
-
-    func present(_ sheet: Destination, detents: Set<PresentationDetent> = [.large], indicator: Visibility = .hidden, dismissDisabled: Bool = false, onDismiss: (() -> Void)? = nil) {
-        restSheet()
-        sheetDetents = detents
-        dragIndicator = indicator
-        self.dismissDisabled = dismissDisabled
-        self.sheet = sheet
-        self.onDismiss = onDismiss
-    }
-    #endif
 
     func backOrDismiss() {
         dismiss()
@@ -104,7 +98,6 @@ public extension SplitRouter {
             overlaySheet = nil
         } else {
             sheet = nil
-            fullScreenCover = nil
         }
     }
 
@@ -116,10 +109,6 @@ public extension SplitRouter {
         }
     }
 
-    func dismissFullScreenCover() {
-        fullScreenCover = nil
-    }
-
     func dismissDisabled(_ isDismissDisabled: Bool = true) {
         dismissDisabled = isDismissDisabled
     }
@@ -128,9 +117,7 @@ public extension SplitRouter {
         if sheet != nil {
             sheet = nil
         }
-        if fullScreenCover != nil {
-            fullScreenCover = nil
-        }
+
         if dragIndicator != .hidden {
             dragIndicator = .hidden
         }
@@ -140,10 +127,9 @@ public extension SplitRouter {
         if sheetDetents.isEmpty == false {
             sheetDetents = []
         }
-        #if os(macOS)
+
         sheetHeight = 500
         sheetWidth = nil
-        #endif
     }
 
     private func restOverlaySheet() {
@@ -165,3 +151,4 @@ public extension SplitRouter {
         #endif
     }
 }
+#endif

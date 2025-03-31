@@ -13,6 +13,7 @@ public enum AppAlert: Alertable {
     case unsavedChanges(_ action: () -> Void)
     case appError(error: AppError)
     case text(_ title: String)
+    case discard(_ action: () -> Void)
     case destructive(
         _ title: String,
         message: String? = nil,
@@ -42,6 +43,8 @@ public extension AppAlert {
             "textTitle"
         case .destructive:
             "destructive"
+        case .discard:
+            "discard"
         case .default:
             "default`"
         }
@@ -66,14 +69,14 @@ public extension AppAlert {
         case let .unsavedChanges(action):
             Alert(
                 title: Text("You have unsaved changes"),
-                message: Text("Do you want to discard them and switch versions?"),
+                message: Text("Do you want to discard?"),
                 primaryButton: .destructive(Text("Discard Changes"), action: action),
                 secondaryButton: .cancel()
             )
         case let .appError(error: error):
             Alert(
                 title: Text(error.title),
-                message: error.subtitle == nil ? nil : Text(error.subtitle ?? ""),
+                message: error.subtitle.map { Text($0) },
                 dismissButton: .default(Text("Close"))
             )
         case let .text(title):
@@ -84,14 +87,20 @@ public extension AppAlert {
         case let .destructive(title, message, button, action):
             Alert(
                 title: Text(title),
-                message: message == nil ? nil : Text(message ?? ""),
+                message: message.map { Text($0) },
                 primaryButton: .destructive(Text(button), action: action),
+                secondaryButton: .cancel()
+            )
+        case let .discard(action):
+            Alert(
+                title: Text("Are you sure you want to discard?"),
+                primaryButton: .destructive(Text("Discard"), action: action),
                 secondaryButton: .cancel()
             )
         case let .default(title, message, button, action):
             Alert(
                 title: Text(title),
-                message: message == nil ? nil : Text(message ?? ""),
+                message: message.map { Text($0) },
                 primaryButton: .default(Text(button), action: action),
                 secondaryButton: .cancel()
             )

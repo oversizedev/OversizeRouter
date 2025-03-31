@@ -70,7 +70,7 @@ public extension Router {
             case .move:
                 move(destination)
             case let .present(sheetHeight: sheetHeight, sheetWidth: sheetWidth):
-                present(destination, sheetHeight: sheetHeight, sheetWidth: sheetWidth)
+                present(destination, height: sheetHeight, width: sheetWidth)
             }
         }
     }
@@ -89,7 +89,7 @@ public extension Router {
                     dismissDisabled: dismissDisabled
                 )
 
-            case let .presentFullScreen:
+            case .presentFullScreen:
                 present(destination, fullScreen: true)
             }
         }
@@ -101,23 +101,23 @@ public extension Router {
 
 public extension Router {
     #if os(macOS)
-    func present(_ sheet: Destination, sheetHeight: CGFloat = 500, sheetWidth: CGFloat? = nil, onDismiss: (() -> Void)? = nil) {
+    func present(_ sheet: Destination, height: CGFloat = 500, width: CGFloat? = nil, onDismiss: (() -> Void)? = nil) {
         if overlaySheet != nil {
             restOverlaySheet()
-            overlaySheetHeight = sheetHeight
-            overlaySheetWidth = sheetWidth
+            overlaySheetHeight = height
+            overlaySheetWidth = width
             overlaySheet = sheet
             overlayOnDismiss = onDismiss
         } else {
             if self.sheet == nil {
                 restSheet()
-                self.sheetHeight = sheetHeight
-                self.sheetWidth = sheetWidth
+                sheetHeight = height
+                sheetWidth = width
                 self.sheet = sheet
                 self.onDismiss = onDismiss
             } else {
-                overlaySheetHeight = sheetHeight
-                overlaySheetWidth = sheetWidth
+                overlaySheetHeight = height
+                overlaySheetWidth = width
                 overlaySheet = sheet
                 overlayOnDismiss = onDismiss
             }
