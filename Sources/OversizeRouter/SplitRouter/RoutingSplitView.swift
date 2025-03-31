@@ -48,13 +48,17 @@ public struct RoutingSplitView<TopSidebar, BottomSidebar, Tab, Destination>: Vie
             sidebar.navigationSplitViewColumnWidth(min: 200, ideal: 280, max: 350)
                 .environment(hudRouter)
                 .environment(splitRouter)
+            #if os(macOS)
                 .environment(alertRouter)
+            #endif
         } detail: {
             splitRouter.selection
                 .view()
                 .environment(hudRouter)
                 .environment(splitRouter)
+            #if os(macOS)
                 .environment(alertRouter)
+            #endif
         }
         .hud(hudRouter.hudText, autoHide: hudRouter.isAutoHide, isPresented: $hudRouter.isShowHud)
         #if os(macOS)
