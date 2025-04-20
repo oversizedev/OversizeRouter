@@ -6,11 +6,12 @@
 import OversizeUI
 import SwiftUI
 
-public struct RoutingSplitView<TopSidebar, BottomSidebar, Tab, Destination>: View
+public struct RoutingSplitView<TopSidebar, BottomSidebar, Tab, Destination, Toolbar>: View
     where Tab: TabableView,
     Destination: RoutableView,
     TopSidebar: View,
-    BottomSidebar: View
+    BottomSidebar: View,
+    Toolbar: ToolbarContent
 {
     @State private var splitRouter: SplitRouter<Tab, Destination>
     @State private var hudRouter: HUDRouter = .init()
@@ -21,26 +22,31 @@ public struct RoutingSplitView<TopSidebar, BottomSidebar, Tab, Destination>: Vie
 
     private let topSidebar: TopSidebar?
     private let bottomSidebar: BottomSidebar?
+    private let toolbar: Toolbar?
 
     public init(
         router: SplitRouter<Tab, Destination>,
         @ViewBuilder topSidebar: () -> TopSidebar,
-        @ViewBuilder bottomSidebar: () -> BottomSidebar
+        @ViewBuilder bottomSidebar: () -> BottomSidebar,
+        @ToolbarContentBuilder toolbar: () -> Toolbar
     ) {
         splitRouter = router
         self.topSidebar = topSidebar()
         self.bottomSidebar = bottomSidebar()
+        self.toolbar = toolbar()
     }
 
     public init(
         selection: Tab,
         tabs: [Tab],
         @ViewBuilder topSidebar: () -> TopSidebar,
-        @ViewBuilder bottomSidebar: () -> BottomSidebar
+        @ViewBuilder bottomSidebar: () -> BottomSidebar,
+        @ToolbarContentBuilder toolbar: () -> Toolbar
     ) {
         splitRouter = .init(selection: selection, tabs: tabs)
         self.topSidebar = topSidebar()
         self.bottomSidebar = bottomSidebar()
+        self.toolbar = toolbar()
     }
 
     public var body: some View {
@@ -146,6 +152,7 @@ public struct RoutingSplitView<TopSidebar, BottomSidebar, Tab, Destination>: Vie
         .listRowSeparator(.hidden)
         .listRowSeparator(.hidden, edges: .all)
         .listRowSeparatorTint(nil)
+        .toolbar { toolbar }
         #endif
     }
 }
