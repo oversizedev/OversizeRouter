@@ -44,7 +44,7 @@ public struct RoutingView<Content, Destination>: View where Content: View, Desti
             #if os(macOS)
             .frame(
                 width: router.sheetWidth,
-                height: router.sheetHeight
+                height: router.sheetHeight,
             )
             #endif
             .presentationDetents(router.sheetDetents)
@@ -63,7 +63,7 @@ public struct RoutingView<Content, Destination>: View where Content: View, Desti
                 #if os(macOS)
                 .frame(
                     width: router.overlaySheetWidth,
-                    height: router.overlaySheetHeight
+                    height: router.overlaySheetHeight,
                 )
                 #endif
                 .alert(item: $alertRouter.alert) { $0.alert }
@@ -94,7 +94,7 @@ public struct RoutingView<Content, Destination>: View where Content: View, Desti
                 #if os(macOS)
                 .frame(
                     width: router.overlaySheetWidth,
-                    height: router.overlaySheetHeight
+                    height: router.overlaySheetHeight,
                 )
                 #endif
                 .alert(item: $alertRouter.alert) { $0.alert }

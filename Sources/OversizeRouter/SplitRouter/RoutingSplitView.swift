@@ -79,7 +79,7 @@ public struct RoutingSplitView<TopSidebar, BottomSidebar, Tab, Destination, Tool
 
                 .frame(
                     width: splitRouter.sheetWidth,
-                    height: splitRouter.sheetHeight
+                    height: splitRouter.sheetHeight,
                 )
 
                 .presentationDetents(splitRouter.sheetDetents)
@@ -98,7 +98,7 @@ public struct RoutingSplitView<TopSidebar, BottomSidebar, Tab, Destination, Tool
 
                     .frame(
                         width: splitRouter.overlaySheetWidth,
-                        height: splitRouter.overlaySheetHeight
+                        height: splitRouter.overlaySheetHeight,
                     )
 
                     .alert(item: $alertRouter.alert) { $0.alert }
@@ -143,7 +143,7 @@ public struct RoutingSplitView<TopSidebar, BottomSidebar, Tab, Destination, Tool
                     }
                 }
                 .listRowInsets(
-                    .init(top: 8, leading: 6, bottom: 8, trailing: 8)
+                    .init(top: 8, leading: 6, bottom: 8, trailing: 8),
                 )
             }
 

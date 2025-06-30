@@ -44,7 +44,7 @@ public struct SplitNavigationView<Content, Destination>: View where Content: Vie
 
             .frame(
                 width: router.sheetWidth,
-                height: router.sheetHeight
+                height: router.sheetHeight,
             )
             .presentationDetents(router.sheetDetents)
             .presentationDragIndicator(router.dragIndicator)
@@ -60,7 +60,7 @@ public struct SplitNavigationView<Content, Destination>: View where Content: Vie
 
                 .frame(
                     width: router.overlaySheetWidth,
-                    height: router.overlaySheetHeight
+                    height: router.overlaySheetHeight,
                 )
 
                 .presentationDetents(router.overlaySheetDetents)

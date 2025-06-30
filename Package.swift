@@ -29,7 +29,7 @@ let package = Package(
     products: [
         .library(
             name: "OversizeRouter",
-            targets: ["OversizeRouter"]
+            targets: ["OversizeRouter"],
         ),
     ],
     dependencies: dependencies,
@@ -40,11 +40,11 @@ let package = Package(
                 .product(name: "OversizeUI", package: "OversizeUI"),
                 .product(name: "OversizeModels", package: "OversizeModels"),
                 .product(name: "OversizeLocalizable", package: "OversizeLocalizable"),
-            ]
+            ],
         ),
         .testTarget(
             name: "OversizeRouterTests",
-            dependencies: ["OversizeRouter"]
+            dependencies: ["OversizeRouter"],
         ),
-    ]
+    ],
 )

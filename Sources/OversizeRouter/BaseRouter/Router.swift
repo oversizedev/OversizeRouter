@@ -86,7 +86,7 @@ public extension Router {
                     destination,
                     detents: detents,
                     indicator: indicator,
-                    dismissDisabled: dismissDisabled
+                    dismissDisabled: dismissDisabled,
                 )
 
             case .presentFullScreen:
